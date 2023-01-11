@@ -4,6 +4,7 @@ from socket import AF_INET
 from socket import SOCK_DGRAM
 from socket import SOCK_STREAM
 import threading
+import sys
 
 import psutil
 import asciichartpy as acp
@@ -19,6 +20,7 @@ from rich.align import Align
 from rich.table import Table
 
 from pynput import keyboard as kb
+import keyboard
 
 AD = "-"
 AF_INET6 = getattr(socket, "AF_INET6", object())
@@ -92,7 +94,7 @@ def draw_graph_panel(sent_data, graph_name, color):
 def create_tcp_table():
     tcp_data = tcp_connections()
     table = Table(
-        title="Open Ports",
+        # title="Open Ports",
         box=box.ROUNDED,
         border_style=default_config["panel_border"],
         title_style="bold yellow",
@@ -135,6 +137,12 @@ def user_control(key):
         return False
 
 
+def exit_app():
+    # print("Closing App!")
+    exit_script = True
+    sys.exit()
+
+
 def main():
     exit_script = False
     sent_buffer = []
@@ -173,6 +181,9 @@ def main():
     with Live(layout, refresh_per_second=10, screen=True) as live:
         # for i in range(1000):
         while exit_script == False:
+            if keyboard.is_pressed("q"):
+                exit_script = True
+                break
             # time.sleep(0.1)
             # recv_bytes, sent_bytes = get_net_stats()
             recv_bytes, sent_bytes = net_usage()
@@ -198,24 +209,26 @@ def main():
                 )
             )
             layout["ports_table"].update(
-                # Panel(
-                #     Align.center(create_tcp_table()),
-                #     border_style=default_config["panel_border"],
-                #     title="[bold][yellow]Open Ports[/bold][/yellow]",
-                # )
-                Align.center(create_tcp_table(), vertical="middle")
+                Panel(
+                    Align.center(create_tcp_table()),
+                    border_style=default_config["panel_border"],
+                    title="[bold][yellow]Open Ports[/bold][/yellow]",
+                )
+                # Align.center(create_tcp_table(), vertical="middle")
             )
 
             # Collect all event until released
-        # with kb.Listener(on_press=user_control) as listener:
-        #     listener.join()
+            # with kb.Listener(on_press=user_control) as listener:
+            #     listener.join()
 
 
 if __name__ == "__main__":
-    # ui_thread = threading.Thread(target=main)
+    # ui_thread = threading.Thread(target=main, daemon=True)
     # ui_thread.start()
 
     # with kb.Listener(on_release == user_control) as kb_listener:
     #     kb_listener.join()
+    # keyboard.add_hotkey("q", exit_app)
     main()
-    # create_tcp_table()
+    # keyboard.add_hotkey("q", exit_app)
+    print("Closing app!")

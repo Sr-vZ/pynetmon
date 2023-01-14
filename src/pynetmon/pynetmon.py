@@ -122,7 +122,7 @@ def create_tcp_table():
     return table
 
 
-def user_control(key):
+def user_control():
     # if key == Key.tab:
     #     print("good")
 
@@ -132,9 +132,12 @@ def user_control(key):
     # by pressing 'delete' button
     # you can terminate the loop
 
-    if key == kb.Key.q:
+    # if key == kb.Key.q:
+    #     exit_script =
+    if keyboard.is_pressed("q"):
         exit_script = True
-        return False
+        # ui_thread.stop()
+        sys.exit()
 
 
 def exit_app():
@@ -170,22 +173,13 @@ def main():
     layout["footer"].update(
         Panel(
             Align.left("[bold][yellow]Q to Quit[/yellow][/bold]"),
-            # name=Prompt.ask(
-            #     "Enter your name", choices=["Paul", "Jessica", "Duncan"], default="Paul"
-            # ),
             title="Controls",
             border_style=default_config["panel_border"],
         )
     )
-    # kb_listener = kb.Listener(on_press=user_control)
+
     with Live(layout, refresh_per_second=10, screen=True) as live:
-        # for i in range(1000):
         while exit_script == False:
-            if keyboard.is_pressed("q"):
-                exit_script = True
-                break
-            # time.sleep(0.1)
-            # recv_bytes, sent_bytes = get_net_stats()
             recv_bytes, sent_bytes = net_usage()
             sent_buffer.append(sent_bytes)
             recv_buffer.append(recv_bytes)
@@ -214,21 +208,18 @@ def main():
                     border_style=default_config["panel_border"],
                     title="[bold][yellow]Open Ports[/bold][/yellow]",
                 )
-                # Align.center(create_tcp_table(), vertical="middle")
             )
-
-            # Collect all event until released
-            # with kb.Listener(on_press=user_control) as listener:
-            #     listener.join()
 
 
 if __name__ == "__main__":
-    # ui_thread = threading.Thread(target=main, daemon=True)
-    # ui_thread.start()
+    ui_thread = threading.Thread(target=main, daemon=True)
+    ui_thread.start()
 
+    user_control = threading.Thread(target=user_control).start()
     # with kb.Listener(on_release == user_control) as kb_listener:
     #     kb_listener.join()
     # keyboard.add_hotkey("q", exit_app)
-    main()
+    # main()
+
     # keyboard.add_hotkey("q", exit_app)
     print("Closing app!")

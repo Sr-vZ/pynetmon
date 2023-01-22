@@ -4,7 +4,7 @@ from socket import AF_INET
 from socket import SOCK_DGRAM
 from socket import SOCK_STREAM
 import threading
-import sys
+import os
 
 import psutil
 import asciichartpy as acp
@@ -14,13 +14,10 @@ from rich import box
 from rich.live import Live
 from rich.panel import Panel
 from rich.layout import Layout
-from rich.console import Console
-from rich.prompt import Prompt
 from rich.align import Align
 from rich.table import Table
 
-from pynput import keyboard as kb
-import keyboard
+import keyboard as kb
 
 AD = "-"
 AF_INET6 = getattr(socket, "AF_INET6", object())
@@ -122,28 +119,14 @@ def create_tcp_table():
     return table
 
 
-def user_control():
-    # if key == Key.tab:
-    #     print("good")
-
-    # if key != Key.tab:
-    #     print("try again")
-
-    # by pressing 'delete' button
-    # you can terminate the loop
-
-    # if key == kb.Key.q:
-    #     exit_script =
-    if keyboard.is_pressed("q"):
-        exit_script = True
-        # ui_thread.stop()
-        sys.exit()
+def user_controls():
+    kb.add_hotkey("q", exit_app)
 
 
 def exit_app():
     # print("Closing App!")
     exit_script = True
-    sys.exit()
+    os._exit(0)
 
 
 def main():
@@ -177,7 +160,7 @@ def main():
             border_style=default_config["panel_border"],
         )
     )
-
+    user_controls()
     with Live(layout, refresh_per_second=10, screen=True) as live:
         while exit_script == False:
             recv_bytes, sent_bytes = net_usage()
@@ -212,14 +195,14 @@ def main():
 
 
 if __name__ == "__main__":
-    ui_thread = threading.Thread(target=main, daemon=True)
-    ui_thread.start()
+    # ui_thread = threading.Thread(target=main, daemon=True)
+    # ui_thread.start()
 
-    user_control = threading.Thread(target=user_control).start()
+    # user_control = threading.Thread(target=user_control).start()
     # with kb.Listener(on_release == user_control) as kb_listener:
     #     kb_listener.join()
     # keyboard.add_hotkey("q", exit_app)
-    # main()
+    main()
 
     # keyboard.add_hotkey("q", exit_app)
     print("Closing app!")
